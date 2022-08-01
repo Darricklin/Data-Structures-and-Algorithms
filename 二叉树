@@ -1,0 +1,229 @@
+“树”这种数据结构真的很像我们现实生活中的“树”，这里面每个元素我们叫做“节点”；用来连接相邻节点之间的关系，我们叫做“父子关系”。
+
+还有三个比较相似的概念：高度（Height）、深度（Depth）、层（Level）。它们的定义是这样的：
+节点的高度：节点到叶子节点的最长路径（边数）
+节点的深度：根节点到这个节点所经历的边数
+节点的层数：节点的深度加1
+树的高度：根节点的高度
+
+高度”这个概念，其实就是从下往上度量，比如我们要度量第 10 层楼的高度、第 13 层楼的高度，起点都是地面。所以，树这种数据结构的高度也是一样，从最底层开始计数，并且计数的起点是 0。“深度”这个概念在生活中是从上往下度量的，比如水中鱼的深度，是从水平面开始度量的。所以，树这种数据结构的深度也是类似的，从根结点开始度量，并且计数起点也是 0。“层数”跟深度的计算类似，不过，计数起点是 1，也就是说根节点位于第 1 层。
+
+
+二叉树：
+
+二叉树，顾名思义，每个节点最多有两个“叉”，也就是两个子节点，分别是左子节点和右子节点。不过，二叉树并不要求每个节点都有两个子节点，有的节点只有左子节点，有的节点只有右子节点。
+叶子节点全都在最底层，除了叶子节点之外，每个节点都有左右两个子节点，这种二叉树就叫做满二叉树。
+叶子节点都在最底下两层，最后一层的叶子节点都靠左排列，并且除了最后一层，其他层的节点个数都要达到最大，这种二叉树叫做完全二叉树。
+
+想要存储一棵二叉树，我们有两种方法，一种是基于指针或者引用的二叉链式存储法，一种是基于数组的顺序存储法。如果某棵二叉树是一棵完全二叉树，那用数组存储无疑是最节省内存的一种方式。
+
+二叉树的遍历
+
+经典的方法有三种，前序遍历、中序遍历和后序遍历。其中，前、中、后序，表示的是节点与它的左右子树节点遍历打印的先后顺序。
+前序遍历是指，对于树中的任意节点来说，先打印这个节点，然后再打印它的左子树，最后打印它的右子树。
+中序遍历是指，对于树中的任意节点来说，先打印它的左子树，然后再打印它本身，最后打印它的右子树。
+后序遍历是指，对于树中的任意节点来说，先打印它的左子树，然后再打印它的右子树，最后打印这个节点本身。
+
+遍历操作的时间复杂度，跟节点的个数 n 成正比，也就是说二叉树遍历的时间复杂度是 O(n)。
+
+
+二叉查找树（Binary Search Tree）
+
+二叉查找树要求，在树中的任意一个节点，其左子树中的每个节点的值，都要小于这个节点的值，而右子树节点的值都大于这个节点的值。
+
+1. 二叉查找树的查找操作
+如果要查找的数据比根节点的值小，那就在左子树中递归查找；如果要查找的数据比根节点的值大，那就在右子树中递归查找。
+
+2. 二叉查找树的插入操作
+如果要插入的数据比节点的数据大，并且节点的右子树为空，就将新数据直接插到右子节点的位置；如果不为空，就再递归遍历右子树，查找插入位置。同理，如果要插入的数据比节点数值小，并且节点的左子树为空，就将新数据插入到左子节点的位置；如果不为空，就再递归遍历左子树，查找插入位置。
+
+3. 二叉查找树的删除操作
+第一种情况是，如果要删除的节点没有子节点，我们只需要直接将父节点中，指向要删除节点的指针置为 null。
+第二种情况是，如果要删除的节点只有一个子节点（只有左子节点或者右子节点），我们只需要更新父节点中，指向要删除节点的指针，让它指向要删除节点的子节点就可以了。
+第三种情况是，如果要删除的节点有两个子节点，这就比较复杂了。我们需要找到这个节点的右子树中的最小节点，把它替换到要删除的节点上。然后再删除掉这个最小节点，因为最小节点肯定没有左子节点（如果有左子结点，那就不是最小节点了），所以，我们可以应用上面两条规则来删除这个最小节点。
+
+
+package main
+
+import (
+	"fmt"
+)
+
+type TreeFNode struct {
+	Value int
+	Left  *TreeFNode
+	Right *TreeFNode
+}
+
+func (t *TreeFNode) Find(n int) *TreeFNode {
+	return findNode(t, n)
+}
+func findNode(t *TreeFNode, n int) *TreeFNode {
+	if t.Value == n {
+		return t
+	} else if n < t.Value {
+		if t.Left != nil {
+			return findNode(t.Left, n)
+		} else {
+			return nil
+		}
+	} else {
+		if t.Right != nil {
+			return findNode(t.Right, n)
+		} else {
+			return nil
+		}
+	}
+}
+
+func (t *TreeFNode) Insert(n *TreeFNode) {
+	insertTree(t, n)
+}
+func insertTree(t, n *TreeFNode) {
+	if n.Value < t.Value {
+		if t.Left == nil {
+			t.Left = n
+		} else {
+			insertTree(t.Left, n)
+		}
+	} else {
+		if t.Right == nil {
+			t.Right = n
+		} else {
+			insertTree(t.Right, n)
+		}
+	}
+}
+
+func (t *TreeFNode) LevelOrder() {
+	res := make([]*TreeFNode, 0)
+	levelT(t, res)
+	fmt.Println(res)
+}
+func levelT(t *TreeFNode, res []*TreeFNode) {
+	if t == nil {
+		return
+	}
+	res = append(res, t)
+	for len(res) > 0 {
+		tree := res[0]
+		fmt.Printf("%v\n", tree.Value)
+		res = res[1:]
+		if tree.Left != nil {
+			res = append(res, tree.Left)
+		}
+		if tree.Right != nil {
+			res = append(res, tree.Right)
+		}
+	}
+}
+
+func (t *TreeFNode) Delete(n int) {
+	var pp *TreeFNode = nil
+	del := t
+	deleteLeft := false
+	for del != nil {
+		if n < del.Value {
+			pp = del
+			del = del.Left
+			deleteLeft = false
+		} else if n > del.Value {
+			pp = del
+			del = del.Right
+			deleteLeft = true
+		} else {
+			break
+		}
+	}
+	fmt.Printf("par: %+v, del :%+v\n", pp, del)
+	if del == nil {
+		fmt.Printf("no\n")
+	} else if del.Left == nil && del.Right == nil {
+		if pp != nil {
+			if deleteLeft {
+				pp.Left = nil
+			} else {
+				pp.Right = nil
+			}
+		}
+	} else if del.Right != nil {
+		pq := del
+		q := del.Right
+		fromRight := true
+		for q.Left != nil {
+			pq = q
+			q = q.Left
+			fromRight = false
+		}
+		if fromRight {
+			pq.Right = nil
+		} else {
+			pq.Left = nil
+		}
+		q.Left = del.Left
+		q.Right = del.Right
+		if pp != nil {
+			if deleteLeft {
+				pq.Left = q
+			} else {
+				pq.Right = q
+			}
+		}
+	} else {
+		if pp != nil {
+			if deleteLeft {
+				pp.Left = del.Left
+			} else {
+				pp.Right = del.Left
+			}
+		}
+	}
+}
+
+func main() {
+	t1 := TreeFNode{
+		Value: 1,
+		Left:  nil,
+		Right: nil,
+	}
+	t2 := TreeFNode{
+		Value: 2,
+		Left:  nil,
+		Right: nil,
+	}
+	t3 := TreeFNode{
+		Value: 3,
+		Left:  nil,
+		Right: nil,
+	}
+	t4 := TreeFNode{
+		Value: 4,
+		Left:  nil,
+		Right: nil,
+	}
+	t5 := TreeFNode{
+		Value: 5,
+		Left:  nil,
+		Right: nil,
+	}
+	t6 := TreeFNode{
+		Value: 6,
+		Left:  nil,
+		Right: nil,
+	}
+	t4.Left = &t2
+	t4.Right = &t5
+	t5.Left = &t6
+	t2.Left = &t1
+	t2.Right = &t3
+	//fmt.Printf("%+v\n",t4.Find(3))
+	t4.LevelOrder()
+	//t7:=TreeFNode{
+	//	Value: 8,
+	//	Left:  nil,
+	//	Right: nil,
+	//}
+	//t4.Insert(&t7)
+	//t4.LevelOrder()
+	t4.Delete(3)
+}
