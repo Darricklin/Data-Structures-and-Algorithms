@@ -54,7 +54,7 @@ func Pri(s *Node) {
 		Pri(s.Next)
 	}
 }
-
+//单链表反转
 func Reverse(head *Node) *Node {
 	var pre *Node
 	for head != nil {
@@ -65,7 +65,7 @@ func Reverse(head *Node) *Node {
 	}
 	return pre
 }
-
+//链表中环的检测
 func Same(head *Node) bool {
 	m1 := make(map[*Node]int, 0)
 	for head != nil {
@@ -78,7 +78,7 @@ func Same(head *Node) bool {
 	}
 	return false
 }
-
+//链表排序
 func sortNode(head *Node) *Node {
 	for head != nil {
 		for head.Next != nil {
@@ -92,7 +92,7 @@ func sortNode(head *Node) *Node {
 	}
 	return head
 }
-
+//获取链表前面第n个节点
 func GetBackNode(head *Node,n int)*Node{
 	nodeCounts:=head.Num()
 	for i:=1;i<nodeCounts-n+1;i++{
@@ -100,6 +100,7 @@ func GetBackNode(head *Node,n int)*Node{
 	}
 	return head
 }
+//获取链表倒数第n个节点
 func GetFrontNode(head *Node,n int)*Node{
 	nodeCounts:=head.Num()
 	if n>nodeCounts{
@@ -110,6 +111,7 @@ func GetFrontNode(head *Node,n int)*Node{
 	}
 	return head
 }
+//获取链表中间节点
 func GetMiddleNode(head *Node)*Node{
 	nodeCounts:=head.Num()
 	mid:=int(math.Floor(float64(nodeCounts/2)))
@@ -118,7 +120,7 @@ func GetMiddleNode(head *Node)*Node{
 	}
 	return head
 }
-
+//两个有序的链表合并
 func Combine(s1,s2 *Node)*Node{
 	if s1==nil{
 		return s2
