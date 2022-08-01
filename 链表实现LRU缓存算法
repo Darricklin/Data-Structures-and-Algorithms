@@ -1,0 +1,219 @@
+链表的定义：链表通过指针将一组零散的内存块串联在一起。其中，我们把内存块称为链表的“结点”。为了将所有的结点串起来，每个链表的结点除了存储数据之外，还需要记录链上的下一个结点的地址。
+
+链表的存储结构：其中有两个结点是比较特殊的，它们分别是第一个结点和最后一个结点。我们习惯性地把第一个结点叫作头结点，把最后一个结点叫作尾结点。其中，头结点用来记录链表的基地址。有了它，我们就可以遍历得到整条链表。而尾结点特殊的地方是：指针不是指向下一个结点，而是指向一个空地址 NULL，表示这是链表上最后一个结点。
+
+操作链表元素的时间复杂度：与数组一样，链表也支持数据的查找、插入和删除操作。我们知道，在进行数组的插入、删除操作时，为了保持内存数据的连续性，需要做大量的数据搬移，所以时间复杂度是 O(n)。而在链表中插入或者删除一个数据，我们并不需要为了保持内存的连续性而搬移结点，因为链表的存储空间本身就不是连续的。所以，在链表中插入和删除一个数据是非常快速的。针对链表的插入和删除操作，我们只需要考虑相邻结点的指针改变，所以对应的时间复杂度是 O(1)。但是，有利就有弊。链表要想随机访问第 k 个元素，就没有数组那么高效了。因为链表中的数据并非连续存储的，所以无法像数组那样，根据首地址和下标，通过寻址公式就能直接计算出对应的内存地址，而是需要根据指针一个结点一个结点地依次遍历，直到找到相应的结点。你可以把链表想象成一个队伍，队伍中的每个人都只知道自己后面的人是谁，所以当我们希望知道排在第 k 位的人是谁的时候，我们就需要从第一个人开始，一个一个地往下数。所以，链表随机访问的性能没有数组好，需要 O(n) 的时间复杂度。
+
+LRU缓存算法的思路：
+维护一个有序单链表，越靠近链表尾部的结点是越早之前访问的。当有一个新的数据被访问时，我们从链表头开始顺序遍历链表。
+1. 如果此数据之前已经被缓存在链表中了，我们遍历得到这个数据对应的结点，并将其从原来的位置删除，然后再插入到链表的头部。
+2. 如果此数据没有在缓存链表中，又可以分为两种情况：如果此时缓存未满，则将此结点直接插入到链表的头部；如果此时缓存已满，则链表尾结点删除，将新的数据结点插入链表的头部。
+
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type Node struct {
+	Data int
+	Next *Node
+}
+
+type Circle struct {
+	Data interface{}
+	Next *Circle
+}
+type Double struct {
+	Pre  *Double
+	Data interface{}
+	Next *Double
+}
+
+func (s *Node) Num() int {
+	return Num(s)
+}
+func Num(s *Node) int {
+	if s != nil {
+		if s.Next == nil {
+			return 1
+		} else {
+			return Num(s.Next) + 1
+		}
+	} else {
+		return 0
+	}
+}
+func (s *Node) Pri() {
+	Pri(s)
+}
+func Pri(s *Node) {
+	if s != nil {
+		fmt.Printf("s is %+v\n", s)
+		Pri(s.Next)
+	}
+}
+
+func Reverse(head *Node) *Node {
+	var pre *Node
+	for head != nil {
+		tmp := head.Next
+		head.Next = pre
+		pre = head
+		head = tmp
+	}
+	return pre
+}
+
+func Same(head *Node) bool {
+	m1 := make(map[*Node]int, 0)
+	for head != nil {
+		if _, ok := m1[head]; ok {
+			return true
+		} else {
+			m1[head] = 1
+			head = head.Next
+		}
+	}
+	return false
+}
+
+func sortNode(head *Node) *Node {
+	for head != nil {
+		for head.Next != nil {
+			if head.Data > head.Next.Data {
+				tmp := head.Next
+				head.Next = head.Next.Next
+				tmp.Next=head
+				head = tmp
+			}
+		}
+	}
+	return head
+}
+
+func GetBackNode(head *Node,n int)*Node{
+	nodeCounts:=head.Num()
+	for i:=1;i<nodeCounts-n+1;i++{
+		head=head.Next
+	}
+	return head
+}
+func GetFrontNode(head *Node,n int)*Node{
+	nodeCounts:=head.Num()
+	if n>nodeCounts{
+		return head
+	}
+	for i:=1;i<n;i++{
+		head=head.Next
+	}
+	return head
+}
+func GetMiddleNode(head *Node)*Node{
+	nodeCounts:=head.Num()
+	mid:=int(math.Floor(float64(nodeCounts/2)))
+	for i:=1;i<mid;i++{
+		head=head.Next
+	}
+	return head
+}
+
+func Combine(s1,s2 *Node)*Node{
+	if s1==nil{
+		return s2
+	}
+	if s2==nil{
+		return s1
+	}
+	if s1.Data<s2.Data{
+		s1.Next=Combine(s1.Next,s2)
+		return s1
+	}else{
+		s2.Next=Combine(s1,s2.Next)
+		return s2
+	}
+}
+
+func LRU(head,new *Node,mem int)*Node{
+	nodeCounts:=head.Num()
+	tmp:=head
+	n:=0
+	for i:=1;i<=nodeCounts;i++{
+		if head.Data==new.Data{
+			n=i
+			break
+		}else {
+			head=head.Next
+		}
+	}
+	fmt.Printf("n is %v\n",n)
+	if n==0{
+		if nodeCounts<mem{
+			new.Next=tmp
+			return new
+		}else{
+			secondLast:=GetBackNode(tmp,2)
+			secondLast.Next=nil
+			new.Next=tmp
+			return new
+		}
+	}else{
+		pre:=GetFrontNode(tmp,n-1)
+		pre.Next=pre.Next.Next
+		new.Next=tmp
+		return new
+	}
+}
+
+
+func main() {
+	s1 := Node{
+		Data: 1,
+		Next: nil,
+	}
+	s2 := Node{
+		Data: 2,
+		Next: nil,
+	}
+	s3 := Node{
+		Data: 3,
+		Next: nil,
+	}
+	s4 := Node{
+		Data: 4,
+		Next: nil,
+	}
+	s5 := Node{
+		Data: 5,
+		Next: nil,
+	}
+	s6 := Node{
+		Data: 6,
+		Next: nil,
+	}
+	s1.Next = &s2
+	s2.Next = &s3
+	s3.Next = &s4
+	s4.Next = &s5
+	s5.Next = &s6
+	s1.Pri()
+	fmt.Printf("=====\n")
+	s4.Pri()
+	fmt.Println(s1.Num())
+	fmt.Printf("=====\n")
+	rs:=Reverse(&s1)
+	rs.Pri()
+	s5.Next=&s1
+	sorts := sortNode(&s1)
+	sorts.Pri()
+	fmt.Printf("%+v",GetBackNode(&s1,2))
+	Combine(&s1,&s4).Pri()
+	fmt.Printf("%+v",GetMiddleNode(&s1))
+	fmt.Printf("%+v",GetFrontNode(&s1,3))
+	s7 := Node{
+		Data: 5,
+		Next: nil,
+	}
+	LRU(&s1,&s7,10).Pri()
+}
