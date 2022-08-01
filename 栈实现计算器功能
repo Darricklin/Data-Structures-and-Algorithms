@@ -1,0 +1,176 @@
+我们再来看栈的另一个常见的应用场景，编译器如何利用栈来实现表达式求值。实际上，编译器就是通过两个栈来实现的。其中一个保存操作数的栈，另一个是保存运算符的栈。我们从左向右遍历表达式，当遇到数字，我们就直接压入操作数栈；当遇到运算符，就与运算符栈的栈顶元素进行比较。如果比运算符栈顶元素的优先级高，就将当前运算符压入栈；如果比运算符栈顶元素的优先级低或者相同，从运算符栈中取栈顶运算符，从操作数栈的栈顶取 2 个操作数，然后进行计算，再把计算完的结果压入操作数栈，继续比较。
+
+
+package main
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
+type NumStack struct {
+	Members []int
+	Cap     int
+	Length  int
+}
+type SigStack struct {
+	Members []string
+	Cap     int
+	Length  int
+}
+
+func getLevel(sig interface{}) int {
+	switch sig {
+	case "+", "-":
+		return 1
+	case "*", "/":
+		return 2
+	}
+	return 0
+}
+func (s *NumStack) Push(item int) (int, bool) {
+	if s.Length == s.Cap {
+		return 0, false
+	} else {
+		s.Members = append(s.Members, item)
+		s.Length++
+		return item, true
+	}
+}
+func (s *NumStack) Pop() (int, bool) {
+	if s.Length == 0 {
+		return 0, false
+	} else {
+		res := s.Members[s.Length-1]
+		s.Members = s.Members[:s.Length-1]
+		s.Length -= 1
+		return res, true
+	}
+}
+
+func (s *SigStack) Push(item string) (string, bool) {
+	if s.Length == s.Cap {
+		return "", false
+	} else {
+		s.Members = append(s.Members, item)
+		s.Length++
+		return item, true
+	}
+}
+func (s *SigStack) Pop() (string, bool) {
+	if s.Length == 0 {
+		return "", false
+	} else {
+		res := s.Members[s.Length-1]
+		s.Members = s.Members[:s.Length-1]
+		s.Length -= 1
+		return res, true
+	}
+}
+
+type Calculate struct {
+	Nums   *NumStack
+	Signal *SigStack
+}
+
+func Split(r rune) bool {
+	return r == '+' || r == '-' || r == '*' || r == '/'
+}
+func isSigs(r string) bool {
+	return r == "+" || r == "-" || r == "*" || r == "/"
+}
+
+func (c *Calculate) GetRes(s string) int {
+	strArr := strings.FieldsFunc(s, Split)
+	sigs := []string{}
+	for _, v := range s {
+		switch string(v) {
+		case "+":
+			sigs = append(sigs, "+")
+		case "-":
+			sigs = append(sigs, "-")
+		case "*":
+			sigs = append(sigs, "*")
+		case "/":
+			sigs = append(sigs, "/")
+		}
+	}
+	tmp := []string{}
+	for i, v := range sigs {
+		tmp = append(tmp, []string{strArr[i], v}...)
+	}
+	tmp = append(tmp, strArr[len(strArr)-1])
+	fmt.Println(tmp)
+	for i, str := range tmp {
+		//fmt.Printf("i:%v,str:%v\n",i ,str)
+		if i%2 == 0 {
+			if c.Nums.Length == 0 {
+				if num, err := strconv.Atoi(str); err != nil {
+					return 0
+				} else {
+					c.Nums.Push(num)
+				}
+			} else {
+				level := getLevel(c.Signal.Members[c.Signal.Length-1])
+				if level == 1 {
+					if num, err := strconv.Atoi(str); err != nil {
+						return 0
+					} else {
+						c.Nums.Push(num)
+					}
+				} else {
+					if prenum, ok := c.Nums.Pop(); ok {
+						if num, err := strconv.Atoi(str); err != nil {
+							return 0
+						} else {
+							if sig, ok := c.Signal.Pop(); ok {
+								if sig == "*" {
+									c.Nums.Push(prenum * num)
+								} else if sig == "/" {
+									c.Nums.Push(prenum / num)
+								}
+							}
+						}
+					}
+				}
+			}
+		} else {
+			c.Signal.Push(str)
+		}
+		//fmt.Printf("Nums %+v\n",c.Nums)
+		//fmt.Printf("Signal %+v\n",c.Signal)
+	}
+	res := c.Nums.Members[0]
+	for i := 0; i < c.Nums.Length-1; i++ {
+		next := c.Nums.Members[i+1]
+		sig := c.Signal.Members[i]
+		if sig == "+" {
+			res = res + next
+		}
+		if sig == "-" {
+			res = res - next
+		}
+	}
+	fmt.Printf("%+v\n", c.Nums)
+	fmt.Printf("%+v\n", c.Signal)
+	fmt.Println(res)
+	return res
+}
+
+func main() {
+	str := "34+13*9+44-12/3"
+	ca := Calculate{
+		Nums: &NumStack{
+			Members: []int{},
+			Cap:     100,
+			Length:  0,
+		},
+		Signal: &SigStack{
+			Members: []string{},
+			Cap:     100,
+			Length:  0,
+		},
+	}
+	ca.GetRes(str)
+}

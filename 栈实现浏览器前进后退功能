@@ -1,0 +1,128 @@
+从栈的操作特性上来看，栈是一种“操作受限”的线性表，只允许在一端插入和删除数据。后进者先出，先进者后出，这就是典型的“栈”结构。当某个数据集合只涉及在一端插入和删除数据，并且满足后进先出、先进后出的特性，这时我们就应该首选“栈”这种数据结构。
+栈主要包含两个操作，入栈和出栈，也就是在栈顶插入一个数据和从栈顶删除一个数据。理解了栈的定义之后，我们来看一看如何用代码实现一个栈。实际上，栈既可以用数组来实现，也可以用链表来实现。用数组实现的栈，我们叫作顺序栈，用链表实现的栈，我们叫作链式栈。
+
+如何实现浏览器的前进、后退功能？其实，用两个栈就可以非常完美地解决这个问题。我们使用两个栈，X 和 Y，我们把首次浏览的页面依次压入栈 X，当点击后退按钮时，再依次从栈 X 中出栈，并将出栈的数据依次放入栈 Y。当我们点击前进按钮时，我们依次从栈 Y 中取出数据，放入栈 X 中。当栈 X 中没有数据时，那就说明没有页面可以继续后退浏览了。当栈 Y 中没有数据，那就说明没有页面可以点击前进按钮浏览了。
+
+
+package main
+
+import "fmt"
+
+type PageList struct {
+	Pages  []string
+	Cap    int
+	Length int
+}
+
+func (p *PageList) Push(item string) (string, bool) {
+	if p.Length == p.Cap {
+		return "", false
+	} else {
+		p.Pages = append(p.Pages, item)
+		p.Length++
+		return item, true
+	}
+}
+func (p *PageList) Pop() (string, bool) {
+	if p.Length == 0 {
+		return "", false
+	} else {
+		res := p.Pages[p.Length-1]
+		p.Pages = p.Pages[:p.Length-1]
+		p.Length -= 1
+		return res, true
+	}
+}
+func (p *PageList) GetTop() string {
+	if p.Length == 0 {
+		return ""
+	} else {
+		return p.Pages[p.Length-1]
+	}
+}
+func (p *PageList) Flush() {
+	p.Length = 0
+	p.Pages = []string{}
+}
+
+type Chrome struct {
+	Read      *PageList
+	StoreBack *PageList
+	Current   string
+}
+
+func (c *Chrome) Back() string {
+	if c.Read.Length == 0 {
+		return ""
+	} else if c.Read.Length == 1 {
+		return c.Current
+	} else {
+		if page, ok := c.Read.Pop(); ok {
+			c.StoreBack.Push(page)
+			c.Current = c.Read.GetTop()
+			return c.Current
+		} else {
+			return ""
+		}
+	}
+}
+
+func (c *Chrome) Next(page string) string {
+	if page != "" {
+		c.Current = page
+		c.Read.Push(page)
+		c.StoreBack.Flush()
+		return c.Current
+	} else {
+		if page, ok := c.StoreBack.Pop(); ok {
+			c.Read.Push(page)
+			c.Current = page
+			return c.Current
+		} else {
+			return ""
+		}
+	}
+}
+
+func main() {
+	c := Chrome{
+		Read: &PageList{
+			Pages:  []string{"a", "b", "c"},
+			Cap:    100,
+			Length: 3,
+		},
+		StoreBack: &PageList{
+			Pages:  []string{},
+			Cap:    100,
+			Length: 0,
+		},
+		Current: "c",
+	}
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+
+	fmt.Println(c.Next(""))
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Next(""))
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Next(""))
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Back())
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+
+	fmt.Println(c.Next("d"))
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+	fmt.Println(c.Next("e"))
+	fmt.Printf("Read:%+v,StoreBack:%+v,current:%v\n", c.Read, c.StoreBack, c.Current)
+
+}
+

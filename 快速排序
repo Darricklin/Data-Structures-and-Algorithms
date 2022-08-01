@@ -1,0 +1,54 @@
+快排的思想是这样的：如果要排序数组中下标从 p 到 r 之间的一组数据，我们选择 p 到 r 之间的任意一个数据作为 pivot（分区点）。我们遍历 p 到 r 之间的数据，将小于 pivot 的放到左边，将大于 pivot 的放到右边，将 pivot 放到中间。经过这一步骤之后，数组 p 到 r 之间的数据就被分成了三个部分，前面 p 到 q-1 之间都是小于 pivot 的，中间是 pivot，后面的 q+1 到 r 之间是大于 pivot 的。根据分治、递归的处理思想，我们可以用递归排序下标从 p 到 q-1 之间的数据和下标从 q+1 到 r 之间的数据，直到区间缩小为 1，就说明所有的数据都有序了。
+
+
+
+快排是一种原地、不稳定的排序算法。快排的时间复杂度也是 O(nlogn)。
+
+package main
+
+import (
+	"fmt"
+)
+
+func quicksort(arr []int) []int {
+	l := len(arr)
+	if l == 1 {
+		return arr
+	} else {
+		separateSort(arr, 0, l-1)
+	}
+	fmt.Println(arr)
+	return arr
+}
+func separateSort(arr []int, start, end int) {
+	if start >= end {
+		return
+	} else {
+		i := partition(arr, start, end)
+		separateSort(arr, start, i-1)
+		separateSort(arr, i+1, end)
+	}
+}
+func partition(arr []int, start, end int) int {
+	pivot := arr[end]
+	var i = start
+	for j := start; j < end; j++ {
+		fmt.Printf("arr :%v,index: %v, j: %v\n", arr, i, j)
+		if arr[j] < pivot {
+			if !(i == j) {
+				// 交换位置
+				arr[i], arr[j] = arr[j], arr[i]
+			}
+			i++
+		}
+	}
+	arr[i], arr[end] = arr[end], arr[i]
+	fmt.Println(arr)
+	fmt.Println(i)
+	return i
+}
+
+func main() {
+	arr := []int{9, 2, 3, 1, 57, 32, 4}
+	quicksort(arr)
+}
