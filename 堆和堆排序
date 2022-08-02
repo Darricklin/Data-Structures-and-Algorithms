@@ -42,3 +42,208 @@
 堆的应用二：利用堆求 Top K
 
 针对静态数据，如何在一个包含 n 个数据的数组中，查找前 K 大数据呢？我们可以维护一个大小为 K 的小顶堆，顺序遍历数组，从数组中取出数据与堆顶元素比较。如果比堆顶元素大，我们就把堆顶元素删除，并且将这个元素插入到堆中；如果比堆顶元素小，则不做处理，继续遍历数组。这样等数组中的数据都遍历完之后，堆中的数据就是前 K 大数据了。
+
+堆的应用三：利用堆求中位数
+
+借助堆这种数据结构，我们不用排序，就可以非常高效地实现求中位数操作。我们来看看，它是如何做到的？
+我们需要维护两个堆，一个大顶堆，一个小顶堆。大顶堆中存储前半部分数据，小顶堆中存储后半部分数据，且小顶堆中的数据都大于大顶堆中的数据。也就是说，如果有 n 个数据，n 是偶数，我们从小到大排序，那前 2n​ 个数据存储在大顶堆中，后 2n​ 个数据存储在小顶堆中。这样，大顶堆中的堆顶元素就是我们要找的中位数。如果 n 是奇数，情况是类似的，大顶堆就存储 2n​+1 个数据，小顶堆中就存储 2n​ 个数据。
+如果新加入的数据小于等于大顶堆的堆顶元素，我们就将这个新数据插入到大顶堆；否则，我们就将这个新数据插入到小顶堆。这个时候就有可能出现，两个堆中的数据个数不符合前面约定的情况：如果 n 是偶数，两个堆中的数据个数都是 2n​；如果 n 是奇数，大顶堆有 2n​+1 个数据，小顶堆有 2n​ 个数据。这个时候，我们可以从一个堆中不停地将堆顶元素移动到另一个堆，通过这样的调整，来让两个堆中的数据满足上面的约定。
+
+
+package main
+
+import (
+	"fmt"
+)
+
+type Heap struct {
+	Arr   []int
+	Cap   int
+	Count int
+}
+
+func NewHeap(cap int) *Heap {
+	return &Heap{
+		Arr:   make([]int, cap+1),
+		Cap:   cap,
+		Count: 0,
+	}
+}
+
+// 插入一个元素
+func (h *Heap) put(data int) {
+	if h.Count >= h.Cap {
+		fmt.Println("full")
+	}
+	h.Count++
+	h.Arr[h.Count] = data
+	par := h.Count / 2
+	tail := h.Count
+	for h.Arr[par] < h.Arr[tail] && par > 0 {
+		h.Arr[tail], h.Arr[par] = h.Arr[par], h.Arr[tail]
+		tail = par
+		par = par / 2
+	}
+}
+
+// 删除堆顶元素
+func (h *Heap) DelHead() {
+	headIndex := 1
+	h.Arr[headIndex] = h.Arr[h.Count]
+	h.Arr[h.Count] = 0
+	h.Count--
+	fmt.Printf("==h.arr :%v\n", h.Arr)
+	for headIndex*2 <= h.Count {
+		left := h.Arr[headIndex*2]
+		right := h.Arr[headIndex*2+1]
+		//fmt.Printf("****h.arr :%v, headIndex : %v,left : %v,right: %v\n", h.Arr, headIndex, left, right)
+		if h.Arr[headIndex] >= left && h.Arr[headIndex] >= right {
+			break
+		}
+		if left > right {
+			if left > h.Arr[headIndex] {
+				h.Arr[headIndex*2], h.Arr[headIndex] = h.Arr[headIndex], h.Arr[headIndex*2]
+				headIndex = headIndex * 2
+			}
+		} else {
+			if right > h.Arr[headIndex] {
+				h.Arr[headIndex*2+1], h.Arr[headIndex] = h.Arr[headIndex], h.Arr[headIndex*2+1]
+				headIndex = headIndex*2 + 1
+			}
+		}
+	}
+}
+
+// 将数组堆化
+func (h *Heap) HeapArr() {
+	tail := h.Count
+	for tail >= 2 {
+		par := tail / 2
+		//fmt.Printf("****h1.arr :%v, par : %v,tail: %v\n", h.Arr, par,tail)
+		if h.Arr[par] < h.Arr[tail] {
+			h.Arr[par], h.Arr[tail] = h.Arr[tail], h.Arr[par]
+			//fmt.Printf("=====h1.arr :%v, par : %v,tail: %v\n", h.Arr, par, tail)
+			tailisHead := tail
+			for tailisHead*2 <= h.Count {
+				left := h.Arr[tailisHead*2]
+				right := h.Arr[tailisHead*2+1]
+				//fmt.Printf("++++h.arr :%v, headIndex : %v,left : %v,right: %v\n", h.Arr, tailisHead, left, right)
+				if h.Arr[tailisHead] >= left && h.Arr[tailisHead] >= right {
+					break
+				}
+				if left > right {
+					if left > h.Arr[tailisHead] {
+						h.Arr[tailisHead*2], h.Arr[tailisHead] = h.Arr[tailisHead], h.Arr[tailisHead*2]
+						tailisHead = tailisHead * 2
+					}
+				} else {
+					if right > h.Arr[tailisHead] {
+						h.Arr[tailisHead*2+1], h.Arr[tailisHead] = h.Arr[tailisHead], h.Arr[tailisHead*2+1]
+						tailisHead = tailisHead*2 + 1
+					}
+				}
+			}
+		}
+		tail--
+	}
+}
+
+// 堆排序
+func (h *Heap) heapSort() {
+	tmpcount := h.Count
+	for i := h.Count; i >= 1; i-- {
+		headIndex := 1
+		h.Arr[headIndex], h.Arr[tmpcount] = h.Arr[tmpcount], h.Arr[headIndex]
+		tmpcount--
+		fmt.Printf("==h.arr :%v,tmpcount: %v\n", h.Arr, tmpcount)
+		for headIndex*2 <= tmpcount {
+			left := h.Arr[headIndex*2]
+			right := h.Arr[headIndex*2+1]
+			if headIndex*2 == tmpcount {
+				right = 0
+			}
+			//fmt.Printf("****h.arr :%v, headIndex : %v,left : %v,right: %v\n", h.Arr, headIndex, left, right)
+			if h.Arr[headIndex] >= left && h.Arr[headIndex] >= right {
+				break
+			}
+			if left > right {
+				if left > h.Arr[headIndex] {
+					h.Arr[headIndex*2], h.Arr[headIndex] = h.Arr[headIndex], h.Arr[headIndex*2]
+					headIndex = headIndex * 2
+				}
+			} else {
+				if right > h.Arr[headIndex] {
+					h.Arr[headIndex*2+1], h.Arr[headIndex] = h.Arr[headIndex], h.Arr[headIndex*2+1]
+					headIndex = headIndex*2 + 1
+				}
+			}
+		}
+	}
+}
+
+// 求最大的n个值
+func (h *Heap) TopK(arr []int, k int) {
+	for _, value := range arr {
+		//fmt.Printf("+++h.arr :%v,h.count: %v ,value is %v\n", h.Arr,h.Count,value)
+		if h.Count == k {
+			if value < h.Arr[1] {
+				h.DelHead()
+				h.put(value)
+			}
+			//fmt.Printf("---h.arr :%v\n", h.Arr)
+		} else {
+			h.put(value)
+		}
+
+	}
+}
+
+func main() {
+	h := NewHeap(10)
+	h.put(1)
+	fmt.Println("1==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(2)
+	fmt.Println("2==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(3)
+	fmt.Println("3==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(4)
+	fmt.Println("4==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(5)
+	fmt.Println("5==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(6)
+	fmt.Println("6==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(7)
+	fmt.Println("7==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.put(8)
+	fmt.Println("8==========")
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h.DelHead()
+	fmt.Printf("h.arr :%v\n", h.Arr)
+	h1 := NewHeap(20)
+	h1.Arr = []int{0, 7, 8, 10, 23, 12, 14, 15, 19, 76, 25, 36}
+	h1.Count = len(h1.Arr[1:])
+	fmt.Printf("h1.arr :%v\n", h1.Arr)
+	h1.HeapArr()
+	fmt.Printf("h1.arr :%v\n", h1.Arr)
+	h1.DelHead()
+	fmt.Printf("h1.arr :%v\n", h1.Arr)
+	fmt.Println("==========")
+	h1.heapSort()
+	fmt.Printf("h1.arr :%v\n", h1.Arr)
+	h2 := NewHeap(20)
+	arr := []int{70, 80, 10, 23, 125, 14, 15, 19, 76, 25, 36}
+	fmt.Println("==========")
+	fmt.Printf("h2.arr :%v\n", h2.Arr)
+	h2.TopK(arr, 5)
+	fmt.Printf("h2.arr :%v\n", h2.Arr)
+	h2.heapSort()
+	fmt.Printf("h2.arr :%v\n", h2.Arr)
+
+}
