@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-// 二分查找递归实现
+//二分查找递归实现
 func bfind(arr []int, n int) int {
 	return bsearch(arr, 0, len(arr)-1, n)
 }
