@@ -344,3 +344,72 @@ func main() {
 	//t4.LevelOrder()
 	t4.Delete(3)
 }
+
+
+判断一个二叉树是不是一个镜像树，镜像树（树的左右两边完全对称）
+
+思路：
+采用递归的方法，先定义特殊场景的判断条件，再定义非镜像树的返回条件，递归去判断
+1.如果根节点是空，是镜像树
+2.判断左子树和右子树，如果左子树为是空，右子树也是空，是镜像树，如果左右子树有一个为空，或左右子树值不等，则不是镜像树。
+3.递归检查左子树的左子树和右子树的右子树&&左子树的右子树和右子树的左子树的等同情况
+package main
+
+import "fmt"
+
+type node struct {
+	value int
+	left  *node
+	right *node
+}
+
+func Mirror(node node) bool {
+	if &node == nil {
+		return true
+	}
+	return check(node.left, node.right)
+}
+func check(left, right *node) bool {
+	if left == nil && right == nil {
+		return true
+	}
+	if left == nil || right == nil || left.value != right.value {
+		return false
+	}
+	return check(left.left, right.right) && check(left.right, right.left)
+
+}
+
+func main() {
+	node1 := node{
+		value: 0,
+		left:  nil,
+		right: nil,
+	}
+	node2 := node{
+		value: 0,
+		left:  nil,
+		right: nil,
+	}
+	node3 := node{
+		value: 0,
+		left:  nil,
+		right: nil,
+	}
+	node4 := node{
+		value: 0,
+		left:  nil,
+		right: nil,
+	}
+	node5 := node{
+		value: 0,
+		left:  nil,
+		right: nil,
+	}
+	node1.left = &node2
+	node1.right = &node3
+	node2.left = &node4
+	node3.right = &node5
+
+	fmt.Println(Mirror(node1))
+}
