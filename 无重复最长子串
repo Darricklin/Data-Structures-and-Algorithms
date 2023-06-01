@@ -1,0 +1,51 @@
+获取一个字符串中无重复的最长子串
+
+滑动窗口，保证每个窗口里字母都是唯一的
+当窗口里没有重复字母时，调整右下标（右下标加1）。
+当窗口里有重复字母时，调整左下标（左下标加1）。
+
+
+package main
+
+import "fmt"
+
+func long(str string) {
+	length := len(str)
+	leftindex := 0
+	rightindex := 1
+	longst := str[leftindex:rightindex]
+	tmp := ""
+	for rightindex < length {
+		rightvalue := str[rightindex]
+		if in(rune(rightvalue), longst) {
+			leftindex++
+			tmp = str[leftindex:rightindex]
+			if len(tmp) > len(longst) {
+				longst = tmp
+			}
+			rightindex++
+		} else {
+			rightindex++
+			tmp = str[leftindex:rightindex]
+			if len(tmp) > len(longst) {
+				longst = tmp
+			}
+		}
+	}
+	fmt.Println(longst)
+}
+func in(elem rune, str string) bool {
+	for _, v := range str {
+		if elem == v {
+			return true
+		}
+	}
+	return false
+}
+
+func main() {
+	str := "abcaqwzepldabb"
+	str1 := "aa"
+	long(str)
+	long(str1)
+}
