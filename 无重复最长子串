@@ -1,8 +1,11 @@
 获取一个字符串中无重复的最长子串
 
 滑动窗口，保证每个窗口里字母都是唯一的
-当窗口里没有重复字母时，调整右下标（右下标加1）。
-当窗口里有重复字母时，调整左下标（左下标加1）。
+当窗口里没有重复字母时，右下标向右滑动1。
+当窗口里有重复字母时，调整左下标,左下标滑动到窗口重复字符的下一个字符（因为在此之前的子串不可能是最大的），然后右下标向右滑动1。
+例如：“abcdcmsq”
+初始左下标在a,右下标在b，窗口内容为【a】，b不在窗口内，右下标右滑1步，窗口为【a，b】，右下标元素c不在【a，b】内，继续右滑。。。。当右下标到第二个c时，窗口为【a,b,c,d】,此时c在窗口内，且c在窗口内的索引为2，此时在第二个c以前的最大子串就是【a,b,c,d】,要想得到更大的子串，
+就要把左下标直接挪到d的位置，然后再往后匹配。也就是要把左下标变为 leftindex+2+1，即左下标向右偏移过窗口内的重复字符位置。
 
 
 package main
@@ -17,8 +20,8 @@ func long(str string) {
 	tmp := ""
 	for rightindex < length {
 		rightvalue := str[rightindex]
-		if in(rune(rightvalue), longst) {
-			leftindex++
+		if index, ok := in(rune(rightvalue), longst); ok {
+			leftindex += index + 1
 			tmp = str[leftindex:rightindex]
 			if len(tmp) > len(longst) {
 				longst = tmp
@@ -34,18 +37,18 @@ func long(str string) {
 	}
 	fmt.Println(longst)
 }
-func in(elem rune, str string) bool {
-	for _, v := range str {
+func in(elem rune, str string) (int, bool) {
+	for index, v := range str {
 		if elem == v {
-			return true
+			return index, true
 		}
 	}
-	return false
+	return 0, false
 }
 
 func main() {
 	str := "abcaqwzepldabb"
-	str1 := "aa"
+	str1 := "abcdd"
 	long(str)
 	long(str1)
 }
