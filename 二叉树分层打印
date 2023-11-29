@@ -12,33 +12,33 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-// levelOrderTraversal 打印二叉树的分层遍历结果
-func levelOrderTraversal(root *TreeNode) {
+// levelOrderPrint 分层打印二叉树
+func levelOrderPrint(root *TreeNode) {
 	if root == nil {
 		return
 	}
 
 	queue := list.New()
 	queue.PushBack(root)
-	count := 1
+
 	for queue.Len() > 0 {
-		//fmt.Printf("count is %v\n", count)
-		node := queue.Front().Value.(*TreeNode)
-		queue.Remove(queue.Front())
+		levelSize := queue.Len()
 
-		fmt.Print(node.Val, " ")
-		count -= 1
+		for i := 0; i < levelSize; i++ {
+			node := queue.Front().Value.(*TreeNode)
+			queue.Remove(queue.Front())
 
-		if node.Left != nil {
-			queue.PushBack(node.Left)
+			fmt.Print(node.Val, " ")
+
+			if node.Left != nil {
+				queue.PushBack(node.Left)
+			}
+			if node.Right != nil {
+				queue.PushBack(node.Right)
+			}
 		}
-		if node.Right != nil {
-			queue.PushBack(node.Right)
-		}
-		if count == 0 {
-			fmt.Println()
-			count = queue.Len()
-		}
+
+		fmt.Println() // 换行表示当前层打印完毕
 	}
 }
 
