@@ -1,0 +1,57 @@
+package main
+
+import (
+	"container/list"
+	"fmt"
+)
+
+// TreeNode 表示二叉树的节点
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+// levelOrderTraversal 打印二叉树的分层遍历结果
+func levelOrderTraversal(root *TreeNode) {
+	if root == nil {
+		return
+	}
+
+	queue := list.New()
+	queue.PushBack(root)
+	count := 1
+	for queue.Len() > 0 {
+		//fmt.Printf("count is %v\n", count)
+		node := queue.Front().Value.(*TreeNode)
+		queue.Remove(queue.Front())
+
+		fmt.Print(node.Val, " ")
+		count -= 1
+
+		if node.Left != nil {
+			queue.PushBack(node.Left)
+		}
+		if node.Right != nil {
+			queue.PushBack(node.Right)
+		}
+		if count == 0 {
+			fmt.Println()
+			count = queue.Len()
+		}
+	}
+}
+
+func main() {
+	// 构建一个简单的二叉树
+	root := &TreeNode{Val: 1}
+	root.Left = &TreeNode{Val: 2}
+	root.Right = &TreeNode{Val: 3}
+	root.Left.Left = &TreeNode{Val: 4}
+	root.Left.Right = &TreeNode{Val: 5}
+	root.Right.Left = &TreeNode{Val: 6}
+	root.Right.Right = &TreeNode{Val: 7}
+
+	fmt.Println("二叉树的分层遍历结果:")
+	levelOrderTraversal(root)
+}
