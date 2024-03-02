@@ -1,0 +1,169 @@
+1. 合并有序数组
+2. 原地移除数组中给定值的元素
+3. 原地移除数组重复元素
+4. 查找数组中出现次数最多的元素
+5. 计算数组内的元素最大差值
+6. 有序数组查找元素
+7. 有序数组的平方排序
+8. 长度最小的子数组
+
+
+1. 合并有序数组
+func Merge(nums1 []int, m int, nums2 []int, n int) {
+	sorted := make([]int, 0, m+n)
+	fmt.Printf("sorted is %+v", sorted)
+	p1 := 0
+	p2 := 0
+	for {
+		if m == p1 {
+			sorted = append(sorted, nums2[p2:]...)
+			fmt.Printf("%+v", sorted)
+			break
+		}
+		if n == p2 {
+			sorted = append(sorted, nums1[p1:]...)
+			fmt.Printf("%+v", sorted)
+			break
+		}
+		if nums1[p1] <= nums2[p2] {
+			sorted = append(sorted, nums1[p1])
+			p1 += 1
+		} else {
+			sorted = append(sorted, nums2[p2])
+			p2 += 1
+		}
+	}
+}
+
+2。原地移除数组中给定值的元素
+// 给你一个数组 nums 和一个值 val，你需要 原地 移除所有数值等于 val 的元素，并返回移除后数组的新长度。
+func RemoveElem(nums []int, value int) int {
+	res := 0
+	for i := 0; i < len(nums); i++ {
+		if nums[i] != value {
+			nums[res] = nums[i]
+			res++
+		}
+	}
+	fmt.Printf("res is %+v", nums[:res])
+	fmt.Println(len(nums[:res]))
+	return len(nums[:res])
+}
+
+3. 原地移除数组重复元素
+// 原地 移除数组中的重复元素，并返回移除后数组的新长度。
+func RemoveDuplicates(nums []int) int {
+	index := 1
+	for i := 1; i < len(nums); i++ {
+		add := true
+		for j := 0; j < index; j++ {
+			if nums[i] == nums[j] {
+				add = false
+				break
+			}
+		}
+		if add {
+			nums[index] = nums[i]
+			index++
+		}
+	}
+	fmt.Printf("%+v", nums[:index])
+	return len(nums[:index])
+}
+
+4. 查找数组中出现次数最多的元素
+func MajorityElement(nums []int) int {
+	var value, maxcount int
+	numMap := make(map[int]int)
+	for i := 0; i < len(nums); i++ {
+		numMap[nums[i]]++
+	}
+	for k, v := range numMap {
+		if v > maxcount {
+			maxcount = v
+			value = k
+		}
+	}
+	fmt.Println(value)
+	return value
+}
+
+5. 计算数组内的元素最大差值
+// 计算股票的最大收益，最低点买入，最高点卖出。
+func MaxProfit(prices []int) int {
+	var maxprofit int
+	minprice := math.MaxInt
+	for i := 0; i < len(prices); i++ {
+		maxprofit = int(math.Max(float64(maxprofit), float64(prices[i]-minprice)))
+		minprice = int(math.Min(float64(prices[i]), float64(minprice)))
+	}
+	fmt.Println(maxprofit)
+	return maxprofit
+}
+
+6. 有序数组查找元素
+// 给定一个 n 个元素有序的（升序）整型数组 nums 和一个目标值 target  ，写一个函数搜索 nums 中的 target，如果目标值存在返回下标，否则返回 -1。
+func FindNum(nums []int, target int) int {
+	leftIndex := 0
+	rightIndex := len(nums) - 1
+	for leftIndex <= rightIndex {
+		middle := (leftIndex + rightIndex) / 2
+		if nums[middle] > target {
+			rightIndex = middle - 1
+		} else if nums[middle] < target {
+			leftIndex = middle + 1
+		} else if nums[middle] == target {
+			return middle
+		}
+	}
+	return -1
+}
+
+7. 有序数组的平方排序
+// 给你一个按 非递减顺序 排序的整数数组 nums，返回 每个数字的平方 组成的新数组，要求也按 非递减顺序 排序。
+func SquareSort(nums []int) []int {
+	left := 0
+	right := len(nums) - 1
+	result := make([]int, len(nums), len(nums))
+	index := len(nums) - 1
+	for left <= right {
+		leftValue := nums[left] * nums[left]
+		rightValue := nums[right] * nums[right]
+		if leftValue > rightValue {
+			result[index] = leftValue
+			index -= 1
+			left += 1
+		} else {
+			result[index] = rightValue
+			index -= 1
+			right -= 1
+		}
+	}
+	fmt.Println(result)
+	return result
+}
+
+8. 长度最小的子数组
+// 给定一个含有 n 个正整数的数组和一个正整数 a ，找出该数组中满足其和 ≥ a 的长度最小的 连续 子数组，并返回其长度。如果不存在符合条件的子数组，返回 0。
+func MinSubArrayLen(nums []int, value int) int {
+	left := 0
+	length := len(nums)
+	sum := 0
+	result := length + 1
+	for right := 0; right < length; right++ {
+		sum += nums[right]
+		for sum >= value {
+			subLength := right - left + 1
+			if subLength < result {
+				result = subLength
+			}
+			sum -= nums[left]
+			left++
+		}
+	}
+	if result == length+1 {
+		return 0
+	} else {
+		return result
+	}
+}
