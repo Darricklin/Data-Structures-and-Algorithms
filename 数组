@@ -6,6 +6,8 @@
 6. 有序数组查找元素
 7. 有序数组的平方排序
 8. 长度最小的子数组
+9. 罗马数字字符串转换成数字
+10.数字转换成罗马数字字符串
 
 
 1. 合并有序数组
@@ -167,3 +169,104 @@ func MinSubArrayLen(nums []int, value int) int {
 		return result
 	}
 }
+
+
+9. 罗马数字字符串转换成数字
+func ExchangeNum(num string) int {
+	Rmap := make(map[string]int)
+	Rmap["IV"] = 4
+	Rmap["IX"] = 9
+	Rmap["XL"] = 40
+	Rmap["XC"] = 90
+	Rmap["CD"] = 400
+	Rmap["CM"] = 900
+	Rmap["I"] = 1
+	Rmap["V"] = 5
+	Rmap["X"] = 10
+	Rmap["L"] = 50
+	Rmap["C"] = 100
+	Rmap["D"] = 500
+	Rmap["M"] = 1000
+	numList := []rune(num)
+	length := len(numList)
+	res := 0
+	index := 0
+	for index < length {
+		if index+1 < length {
+			key := string(numList[index]) + string(numList[index+1])
+			if v, ok := Rmap[key]; ok {
+				res += v
+				index += 2
+			} else {
+				if v, ok := Rmap[string(numList[index])]; ok {
+					res += v
+					index++
+				}
+			}
+		} else {
+			if v, ok := Rmap[string(numList[index])]; ok {
+				res += v
+				index++
+			}
+		}
+	}
+	fmt.Println(res)
+	return res
+}
+
+ExchangeNum("XXVII")   27
+ExchangeNum("CDXXVII") 427
+ExchangeNum("MMCDIX")  2409
+
+10.数字转换成罗马数字字符串
+
+func ExchangeNum2(num int) string {
+	Rmap := make(map[int]string)
+	Rmap[4] = "IV"
+	Rmap[9] = "IX"
+	Rmap[40] = "XL"
+	Rmap[90] = "XC"
+	Rmap[400] = "CD"
+	Rmap[900] = "CM"
+	Rmap[1] = "I"
+	Rmap[5] = "V"
+	Rmap[10] = "X"
+	Rmap[50] = "L"
+	Rmap[100] = "C"
+	Rmap[500] = "D"
+	Rmap[1000] = "M"
+	res := ""
+	n := 0
+	for num > 0 {
+		yushu := num % 10
+		weishu := int(math.Pow10(n))
+		yw := weishu * yushu
+		if v, ok := Rmap[yw]; ok {
+			res = v + res
+		} else {
+			if v, ok := Rmap[weishu]; ok && yushu != 0 {
+				if yushu >= 5 {
+					if v5, ok := Rmap[5*weishu]; ok {
+						yushu -= 5
+						for i := 0; i < yushu; i++ {
+							res = v + res
+						}
+						res = v5 + res
+					}
+				} else {
+					for i := 0; i < yushu; i++ {
+						res = v + res
+					}
+				}
+			}
+		}
+		num = num / 10
+		n++
+	}
+	fmt.Println(res)
+	return res
+}
+
+ExchangeNum2(27)   "XXVII"
+ExchangeNum2(427)  "CDXXVII"
+ExchangeNum2(2409) "MMCDIX"
