@@ -8,6 +8,10 @@
 8. 长度最小的子数组
 9. 罗马数字字符串转换成数字
 10.数字转换成罗马数字字符串
+11.文本最后一个单词的长度
+12.求列表中字符串的最长前缀
+13.反转字符串文本中的单词
+14.构造前缀表，前缀表就是求模式串的子串中，最长的相等前后缀。然后在字符串s中，找到模式串pre首次出现的索引，没有匹配返回-1.
 
 
 1. 合并有序数组
@@ -270,3 +274,94 @@ func ExchangeNum2(num int) string {
 ExchangeNum2(27)   "XXVII"
 ExchangeNum2(427)  "CDXXVII"
 ExchangeNum2(2409) "MMCDIX"
+
+
+
+
+11 文本最后一个单词的长度
+func LastWordLength(s string) int {
+	s = strings.TrimSpace(s)
+	if len(s) > 0 {
+		words := strings.Split(s, " ")
+		fmt.Println(words)
+		length := len(words)
+		return len(words[length-1])
+	} else {
+		return 0
+	}
+}
+
+12  求列表中字符串的最长前缀
+func LongestPre(strs []string) string {
+	fisrtWord := strs[0]
+	fisrtWordLen := len(strs[0])
+	preIndex := 0
+	res := ""
+	for preIndex < fisrtWordLen {
+		tmpPre := fisrtWord[preIndex]
+		for i := 1; i < len(strs); i++ {
+			if preIndex < len(strs[i]) {
+				if strs[i][preIndex] != tmpPre {
+					return res
+				}
+			} else {
+				return res
+			}
+		}
+		preIndex++
+		res = fisrtWord[:preIndex]
+	}
+	return res
+}
+
+13 反转字符串文本中的单词
+func ReverseWords(s string) string {
+	s = strings.TrimSpace(s)
+	sList := strings.Split(s, " ")
+	res := ""
+	for _, v := range sList {
+		if v != "" {
+			res = v + " " + res
+		}
+	}
+	res = strings.TrimSpace(res)
+	return res
+
+}
+
+14  构造前缀表，前缀表就是求模式串的子串中，最长的相等前后缀。
+func GetNext(s string) []int {
+	length := len(s)
+	j := 0
+	next := make([]int, length)
+	next[0] = j
+	for i := 1; i < len(s); i++ {
+		for j > 0 && s[i] != s[j] {
+			j = next[j-1]
+		}
+		if s[i] == s[j] {
+			j++
+		}
+		next[i] = j
+	}
+	return next
+}
+
+14 在字符串s中，找到模式串pre首次出现的索引，没有匹配返回-1.
+func FindFirstMatch(s, pre string) (int, error) {
+	pretable := GetNext(pre)
+	length := len(s)
+	preIndex := 0
+	for i := 0; i < length; i++ {
+		for preIndex > 0 && s[i] != pre[preIndex] {
+			preIndex = pretable[preIndex-1]
+		}
+		if s[i] == pre[preIndex] {
+			preIndex++
+		}
+		if preIndex == len(pre) {
+			return i - len(pre) + 1, nil
+		}
+	}
+	return -1, fmt.Errorf("no")
+}
