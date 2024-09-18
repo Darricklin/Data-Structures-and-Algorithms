@@ -136,6 +136,37 @@ func Combine(s1,s2 *Node)*Node{
 		return s2
 	}
 }
+// 链表元素两两交换
+func swapPairs(head *Node) *Node {
+	// 如果链表为空或只有一个节点，直接返回
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	// 初始化指针
+	dummy := &Node{Next: head} // 哑节点方便处理头节点的交换
+	prev := dummy
+	cur := head
+
+	// 遍历链表，交换相邻节点
+	for cur != nil && cur.Next != nil {
+		// 记录下一个节点
+		nextPair := cur.Next.Next
+		second := cur.Next
+
+		// 交换节点
+		second.Next = cur
+		cur.Next = nextPair
+		prev.Next = second
+
+		// 更新指针，处理下一对节点
+		prev = cur
+		cur = nextPair
+	}
+
+	return dummy.Next
+}
+
 
 func LRU(head,new *Node,mem int)*Node{
 	nodeCounts:=head.Num()
