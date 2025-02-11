@@ -1,0 +1,120 @@
+背包问题一般采用动态规划解决，如一个背包的容量为cap，有n个物品，每个物品有对应的重量和价值。求背包能够装下的最大价值。类似问题有投资收益率问题，投入总数为all，有n个理财产品，每个产品对应一个投资限额和回报率，求最大投资收益率。
+
+  采用动态规划实现
+
+package main
+
+import (
+    "fmt"
+)
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
+func knapsackOptimized(weight []int, value []int, C int) int {
+    n := len(weight)
+    dp := make([]int, C+1)
+    for i := 0; i < n; i++ {
+        for j := C; j >= weight[i]; j-- {
+            dp[j] = max(dp[j], dp[j-weight[i]] + value[i])
+        }
+    }
+    return dp[C]
+}
+
+func main() {
+    weight := []int{2, 3, 4, 5}
+    value := []int{3, 4, 5, 6}
+    Cap := 8
+    result := knapsackOptimized(weight, v, Cap)
+    fmt.Printf("背包容量为 %d 时，能获得的最大价值是: %d\n", Cap, result)
+}
+
+
+
+王强决定把年终奖用于购物，他把想买的物品分为两类：主件与附件。
+主件可以没有附件，至多有 2 个附件。附件不再有从属于自己的附件。如果要买归类为附件的物品，必须先买该附件所属的主件，且每件物品只能购买一次。
+王强查到了每件物品的价格，而他只有 n 元的预算。为了先购买重要的物品，他给每件物品规定了一个重要度，用整数 1∼5 表示。他希望在花费不超过 n 元的前提下，使自己的满意度达到最大。
+
+
+  示例
+  输入
+  50 5
+  20 3 5
+  20 3 5
+  10 3 0
+  10 2 0
+  10 1 0
+
+
+  package main
+
+import (
+    "fmt"
+)
+
+// 物品结构体，包含价格、重要度和是否为主件信息
+type Item struct {
+    price     int
+    importance int
+    isMain    bool
+    attachments []*Item
+}
+
+// max 函数用于返回两个整数中的最大值
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
+// 计算满意度，满意度 = 价格 * 重要度
+func calculateSatisfaction(item *Item) int {
+    return item.price * item.importance
+}
+
+// 动态规划解决购物问题
+func shopping(n int, items []*Item) int {
+    dp := make([]int, n+1)
+    for _, mainItem := range items {
+        if!mainItem.isMain {
+            continue
+        }
+        for j := n; j >= mainItem.price; j-- {
+            // 只选主件
+            dp[j] = max(dp[j], dp[j-mainItem.price]+calculateSatisfaction(mainItem))
+            // 选主件和第一个附件
+            if len(mainItem.attachments) >= 1 && j >= mainItem.price+mainItem.attachments[0].price {
+                dp[j] = max(dp[j], dp[j-mainItem.price-mainItem.attachments[0].price]+calculateSatisfaction(mainItem)+calculateSatisfaction(mainItem.attachments[0]))
+            }
+            // 选主件和第二个附件
+            if len(mainItem.attachments) >= 2 && j >= mainItem.price+mainItem.attachments[1].price {
+                dp[j] = max(dp[j], dp[j-mainItem.price-mainItem.attachments[1].price]+calculateSatisfaction(mainItem)+calculateSatisfaction(mainItem.attachments[1]))
+            }
+            // 选主件和两个附件
+            if len(mainItem.attachments) >= 2 && j >= mainItem.price+mainItem.attachments[0].price+mainItem.attachments[1].price {
+                dp[j] = max(dp[j], dp[j-mainItem.price-mainItem.attachments[0].price-mainItem.attachments[1].price]+calculateSatisfaction(mainItem)+calculateSatisfaction(mainItem.attachments[0])+calculateSatisfaction(mainItem.attachments[1]))
+            }
+        }
+    }
+    return dp[n]
+}
+
+func main() {
+    // 示例物品信息
+    item1 := &Item{price: 1000, importance: 5, isMain: true, attachments: []*Item{}}
+    item2 := &Item{price: 2000, importance: 4, isMain: true, attachments: []*Item{}}
+    attachment1 := &Item{price: 500, importance: 3, isMain: false, attachments: []*Item{}}
+    attachment2 := &Item{price: 600, importance: 3, isMain: false, attachments: []*Item{}}
+    item2.attachments = append(item2.attachments, attachment1, attachment2)
+
+    items := []*Item{item1, item2, attachment1, attachment2}
+    n := 3000
+    result := shopping(n, items)
+    fmt.Printf("在预算 %d 元的前提下，最大满意度为: %d\n", n, result)
+}
