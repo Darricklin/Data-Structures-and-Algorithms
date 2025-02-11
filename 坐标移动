@@ -1,0 +1,65 @@
+我们定义一个无限大的二维网格上有一个小人，小人初始位置为(0,0) 点，小人可以读取指令上下左右移动。
+
+一个合法的指令由三至四个符号组成：第一个符号为"A/D/W/S" 中的一个，代表小人移动的方向；分别代表向左、向右、向上、向下移动；记某个时刻小人的坐标为
+(x,y) ，向左移动一格即抵达(x−1,y) 、向右移动一格即抵达(x+1,y) 、向上移动一格即抵达(x,y+1) 、向下移动一格即抵达(x,y−1) 。
+";" ，代表指令的结束，该符号固定存在；1-99 的数字，代表小人移动的距离。
+如果你遇到了一个不合法的指令，则直接忽略；例如，指令"A100;" 是不合法的，因为100 超出了1-99 的范围；
+"Y10;" 也是不合法的，因为Y 不是"A/D/W/S" 中的一个。
+输出小人最终的坐标。 go实现
+
+
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+func isValid(command string) (bool, int) {
+	if len(command) < 2 || len(command) > 3 {
+		return false, 0
+	}
+	direction := string(command[0])
+	if direction != "A" && direction != "D" && direction != "W" && direction != "S" {
+		return false, 0
+	}
+	stepstr := command[1:]
+	step, err := strconv.Atoi(stepstr)
+	if err != nil || step < 1 || step > 99 {
+		return false, 0
+	}
+	return true, step
+}
+
+func move(command string, step int, x, y *int) {
+	direction := string(command[0])
+	switch direction {
+	case "A":
+		*x -= step
+	case "D":
+		*x += step
+	case "W":
+		*y += step
+	case "S":
+		*y -= step
+	}
+}
+
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	commandStr := input.Text()
+	commands := strings.Split(commandStr, ";")
+	fmt.Println(commands)
+	x, y := 0, 0
+	for _, command := range commands {
+		if valid, step := isValid(command); valid {
+			move(command, step, &x, &y)
+		}
+	}
+	fmt.Printf("%d,%d", x, y)
+}
