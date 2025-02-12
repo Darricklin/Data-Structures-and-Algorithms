@@ -1,0 +1,89 @@
+定义一个由小写字母构成的字符串 s 的“兄弟单词”为：任意交换 s 中两个字母的位置，得到的新字符串，且其与 s 不同。
+现在，对于给定的 n 个字符串 s1,s2,.....Sn.和另一个单独的字符串 x ，你需要解决两个问题：
+.1 统计这 n 个字符串中，有多少个是 x 的“兄弟单词”；
+∙2 将这 n 个字符串中 x 的“兄弟单词”按字典序从小到大排序，输出排序后的第 k 个兄弟单词。特别地，如果不存在，则不输出任何内容。
+
+从字符串的第一个字符开始逐个比较，直到找到第一个不同的位置，通过比较这个位置字符的字母表顺序得出字符串的大小，称为字典序比较。
+
+输入描述：
+在一行上：
+1.先输入一个整数 n(1≦n≦1000) 代表字符串的个数；
+2.随后输入n 个字符串，仅由小写字母构成的字符串 
+3.随后，输入一个字符串 x ；
+4.最后，输入一个整数 k(1≦k≦n) 代表要查找的兄弟单词的序号。
+输出描述：
+第一行输出一个整数，代表给定的 n 个字符串中，x 的“兄弟单词”的数量；
+第二行输出一个字符串，代表将给定的 n 个字符串中 x 的“兄弟单词”按字典序排序后的第 k 小兄弟单词。特别地，如果不存在，则不输出任何内容。
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+	"strings"
+)
+
+// permute 函数用于生成字符串的全排列
+func permute(s string) []string {
+	var result []string
+	if len(s) == 0 {
+		return result
+	}
+	// 将字符串转换为字符切片
+	chars := []rune(s)
+	backtrack(chars, 0, &result)
+	return result
+}
+
+func in(all []string, str string) bool {
+	for _, s := range all {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
+// backtrack 是递归回溯函数
+func backtrack(chars []rune, start int, result *[]string) {
+	// 当 start 等于字符切片长度时，说明已经完成一种排列
+	if start == len(chars) {
+		*result = append(*result, string(chars))
+		return
+	}
+	// 从 start 位置开始，依次与后续位置的字符交换
+	for i := start; i < len(chars); i++ {
+		chars[start], chars[i] = chars[i], chars[start]
+		// 递归调用 backtrack 处理下一个位置
+		backtrack(chars, start+1, result)
+		// 回溯操作，恢复原来的顺序
+		chars[start], chars[i] = chars[i], chars[start]
+	}
+}
+
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	data := input.Text()
+	datas := strings.Split(data, " ")
+	//length, _ := strconv.Atoi(datas[0])
+	k, _ := strconv.Atoi(datas[len(datas)-1])
+	word := datas[len(datas)-2]
+	brothers := permute(word)
+	res := make([]string, 0)
+	for _, str := range datas[1 : len(datas)-2] {
+		if in(brothers, str) && str != word {
+			res = append(res, str)
+		}
+	}
+	sort.Strings(res)
+	fmt.Println(len(res))
+	if k > len(res) {
+		return
+	} else {
+		fmt.Println(res[k-1])
+	}
+}
