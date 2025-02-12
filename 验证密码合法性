@@ -1,0 +1,81 @@
+合格的密码要求：
+∙长度不低于8位 
+∙必须包含大写字母、小写字母、数字、特殊字符中的至少三种
+∙不能分割出两个独立的、长度大于 2 的连续子串，使得这两个子串完全相同；更具体地，如果存在两个长度大于 2 的独立子串 s1,s2,使得s1=s2.那么密码不合法。
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"regexp"
+	"strings"
+)
+
+// 检查复杂度
+func checkComplex(password string) bool {
+	count := 0
+	re := regexp.MustCompile(`[a-z]`)
+	if re.FindString(password) != "" {
+		count++
+	}
+	re = regexp.MustCompile(`[A-Z]`)
+	if re.FindString(password) != "" {
+		count++
+	}
+	re = regexp.MustCompile(`[0-9]`)
+	if re.FindString(password) != "" {
+		count++
+	}
+	re = regexp.MustCompile(`[^a-z0-9A-Z]`)
+	match := re.MatchString(strings.TrimSpace(password))
+	if match {
+		count++
+	}
+	if count >= 3 {
+		return true
+	}
+	return false
+}
+//检查长度
+func checkLength(password string) bool {
+	if len(password) >= 8 {
+		return true
+	}
+	return false
+}
+// 检查是否重复
+func checkSame(password string) bool {
+	length := len(password)
+	for i := 0; i < length-2; i++ {
+		subStr := password[i : i+3]
+		if password[i] == password[i+1] || password[i] == password[i+2] {
+			continue
+		}
+		for j := i + 1; j < length-2; j++ {
+			if password[j:j+3] == subStr {
+				return false
+			}
+		}
+	}
+	return true
+}
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+	for {
+		input.Scan()
+		data := input.Text()
+		if len(data) == 0 {
+			break
+		}
+		passwords := strings.Split(data, "\n")
+		for _, password := range passwords {
+			if checkLength(password) && checkComplex(password) && checkSame(password) {
+				fmt.Println("OK")
+			} else {
+				fmt.Println("NG")
+			}
+		}
+	}
+}
