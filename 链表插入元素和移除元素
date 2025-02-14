@@ -1,0 +1,78 @@
+在指定值的节点后面插入新的节点。
+从单项链表中删除指定值的节点。
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+type Node struct {
+	v    int
+	next *Node
+}
+
+func (n *Node) Print() {
+	current := n
+	for current != nil {
+		fmt.Println(current.v)
+		current = current.next
+	}
+}
+
+func insertNode(head, node *Node, v int) *Node {
+	current := head
+	for current != nil {
+		if current.v == v {
+			node.next = current.next
+			current.next = node
+			break
+		} else {
+			current = current.next
+		}
+	}
+	return head
+}
+
+func (n *Node) Delete(v int) *Node {
+	dummy := &Node{next: n}
+	pre := dummy
+	current := n
+	for current != nil {
+		if current.v == v {
+			pre.next = current.next
+		} else {
+			pre = current
+		}
+		current = current.next
+	}
+	return dummy.next
+}
+
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	dataStr := input.Text()
+	data := strings.Split(dataStr, " ")
+	nodeNum, _ := strconv.Atoi(data[0])
+	headV, _ := strconv.Atoi(data[1])
+	head := &Node{
+		v: headV,
+	}
+	//5 2 3 2 4 3 5 2 1 4 3
+	for i := 2; i < nodeNum*2; i += 2 {
+		preNodeV, _ := strconv.Atoi(data[i+1])
+		newNodeV, _ := strconv.Atoi(data[i])
+		newNode := &Node{
+			v: newNodeV,
+		}
+		insertNode(head, newNode, preNodeV)
+	}
+	delV, _ := strconv.Atoi(data[len(data)-1])
+	head.Delete(delV)
+	head.Print()
+}
