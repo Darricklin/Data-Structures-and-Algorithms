@@ -1,0 +1,94 @@
+用 Go 语言实现的程序，用于判断给定的四个数字，通过加减乘除四种运算，每个数字仅使用一次，是否能得到结果 24。
+
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+// 定义一个很小的误差值，用于处理浮点数比较
+const eps = 1e-6
+
+// 检查两个浮点数是否近似相等
+func isEqual(a, b float64) bool {
+	return a-b < eps && b-a < eps
+}
+
+// 对两个数进行四则运算
+func compute(a, b float64, op int) float64 {
+	switch op {
+	case 0:
+		return a + b
+	case 1:
+		return a - b
+	case 2:
+		return b - a
+	case 3:
+		return a * b
+	case 4:
+		if b != 0 {
+			return a / b
+		}
+		return 0
+	case 5:
+		if a != 0 {
+			return b / a
+		}
+		return 0
+	}
+	return 0
+}
+
+// 递归函数，尝试所有可能的运算组合
+func canGet24(nums []float64) bool {
+	n := len(nums)
+	if n == 1 {
+		return isEqual(nums[0], 24)
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i == j {
+				continue
+			}
+			// 生成剩余数字的切片
+			nextNums := make([]float64, 0, n-1)
+			for k := 0; k < n; k++ {
+				if k != i && k != j {
+					nextNums = append(nextNums, nums[k])
+				}
+			}
+			// 尝试六种四则运算
+			for op := 0; op < 6; op++ {
+				result := compute(nums[i], nums[j], op)
+				nextNums = append(nextNums, result)
+				if canGet24(nextNums) {
+					return true
+				}
+				nextNums = nextNums[:len(nextNums)-1]
+			}
+		}
+	}
+	return false
+}
+
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	dataStr := input.Text()
+	dataList := strings.Split(dataStr, " ")
+	nums := make([]float64, 0)
+	for _, v := range dataList {
+		num, _ := strconv.Atoi(v)
+		nums = append(nums, float64(num))
+	}
+	if canGet24(nums) {
+		fmt.Println(true)
+	} else {
+		fmt.Println(false)
+	}
+}
