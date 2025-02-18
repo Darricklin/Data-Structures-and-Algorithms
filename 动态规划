@@ -1,4 +1,5 @@
-背包问题一般采用动态规划解决，如一个背包的容量为cap，有n个物品，每个物品有对应的重量和价值。求背包能够装下的最大价值。类似问题有投资收益率问题，投入总数为all，有n个理财产品，每个产品对应一个投资限额和回报率，求最大投资收益率。
+背包问题一般采用动态规划解决，如一个背包的容量为cap，有n个物品，每个物品有对应的重量和价值。求背包能够装下的最大价值。
+类似问题有投资收益率问题，投入总数为all，有n个理财产品，每个产品对应一个投资限额和回报率，求最大投资收益率。
 
 采用动态规划实现
 
@@ -15,11 +16,12 @@ func max(a, b int) int {
     return b
 }
 
-func knapsackOptimized(weight []int, value []int, C int) int {
+// weight 每个物品的重量的列表，value 每个物品价值的列表，Cap 背包容量
+func knapsackOptimized(weight []int, value []int, Cap int) int {
     n := len(weight)
-    dp := make([]int, C+1)
+    dp := make([]int, Cap+1)
     for i := 0; i < n; i++ {
-        for j := C; j >= weight[i]; j-- {
+        for j := Cap; j >= weight[i]; j-- {
             dp[j] = max(dp[j], dp[j-weight[i]] + value[i])
         }
     }
