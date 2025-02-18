@@ -25,7 +25,7 @@ func knapsackOptimized(weight []int, value []int, Cap int) int {
             dp[j] = max(dp[j], dp[j-weight[i]] + value[i])
         }
     }
-    return dp[C]
+    return dp[Cap]
 }
 
 func main() {
