@@ -1,0 +1,74 @@
+链表两两元素交换，1,2,3,4-----》2,1,4,3
+
+// 1,2,3,4
+// 2 1 4，3
+// 一，1,3,4 head的下一个是head.next.next, 
+// 二，2,1,3,4 head.next指向head
+// 三, pre,2,1,3,4 pre 指向head.next
+// 四， 1,3,4  head =head.next ,pre=head
+func Reverse2(head *Node) *Node {
+	dummy := &Node{next: head}
+	pre := dummy
+	for head != nil && head.next != nil {
+		firstNext := head.next
+		secondNext := head.next.next
+
+		head.next = secondNext
+		firstNext.next = head
+		pre.next = firstNext
+
+		pre = head
+		head = secondNext
+	}
+	return dummy.next
+}
+
+//三个元素为一组，实现链表反序
+//一、先将三个元素为一组切割，放到列表中
+//二、遍历列表元素，分别反序，存入新的列表
+//三、遍历新列表，获取当前元素的末尾元素，让它指向列表的下一个元素。
+//四、列表的首位元素就是反序后的结果。
+
+// 1 2 3 4 5 6 7 8
+// 3 2 1 6 5 4 8 7
+func Reverse3(head *Node) []*Node {
+	count := 0
+	elem := head
+	data := make([]*Node, 0)
+	for head != nil {
+		count++
+		tmpHead := head.next
+		if count == 3 {
+			head.next = nil
+			data = append(data, elem)
+			elem = tmpHead
+			count = 0
+		}
+		head = tmpHead
+	}
+	if count != 0 && elem != nil {
+		data = append(data, elem)
+	}
+	res := make([]*Node, 0)
+	for _, node := range data {
+		reverseNode := Reverse(node)
+		res = append(res, reverseNode)
+	}
+	length := len(res)
+	for i := 0; i < length-1; i++ {
+		last := getLast(res[i])
+		last.next = res[i+1]
+	}
+	return res
+}
+
+func getLast(head *Node) *Node {
+	for head != nil {
+		if head.next == nil {
+			return head
+		} else {
+			head = head.next
+		}
+	}
+	return head
+}
