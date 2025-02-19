@@ -1,0 +1,52 @@
+给两个字符串，求两个字符串的最长公共子串。例如abcdef和ababcecdef，，最长子串是cdef，长度是4.
+
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+// abcdef
+// ababcecdef
+func getLongestSubStr(str1, str2 string) (string, int) {
+	data := make(map[string]int)
+	str1Left := 0
+	str1Right := 1
+	str1Len := len(str1)
+	for str1Right < str1Len {
+		for str1Right <= str1Len {
+			subStr := str1[str1Left:str1Right]
+			if strings.Contains(str2, subStr) {
+				str1Right++
+				data[subStr] = len(subStr)
+			} else {
+				break
+			}
+		}
+		str1Left++
+		str1Right = str1Left + 1
+	}
+	max := -1
+	maxStr := ""
+	for k, v := range data {
+		if v > max {
+			max = v
+			maxStr = k
+		}
+	}
+	return maxStr, max
+}
+
+func main() {
+	input:=bufio.NewScanner(os.Stdin)
+	input.Scan()
+	str1:=input.Text()
+	input.Scan()
+	str2:=input.Text()
+	_,max:=getLongestSubStr(str1,str2)
+	fmt.Println(max)
+}
