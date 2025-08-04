@@ -13,38 +13,30 @@ package main
 
 import "fmt"
 
-func long(str string) {
-	length := len(str)
-	leftindex := 0
-	rightindex := 1
-	longst := str[leftindex:rightindex]
-	tmp := ""
-	for rightindex < length {
-		rightvalue := str[rightindex]
-		if index, ok := in(rune(rightvalue), longst); ok {
-			leftindex += index + 1
-			tmp = str[leftindex:rightindex]
-			if len(tmp) > len(longst) {
-				longst = tmp
-			}
-			rightindex++
-		} else {
-			rightindex++
-			tmp = str[leftindex:rightindex]
-			if len(tmp) > len(longst) {
-				longst = tmp
-			}
+func longestSubStr(str string)int{
+	length:=len(str)
+	left:=0
+	right:=1
+	tmp:=str[left:right]
+	for right<length{
+		if ok,index:=in(tmp,rune(str[right]));ok{
+			left+=index+1	
+		}
+		right++
+		if len(str[left:right])>len(tmp){
+			tmp=str[left:right]
 		}
 	}
-	fmt.Println(longst)
+	return len(tmp)
 }
-func in(elem rune, str string) (int, bool) {
-	for index, v := range str {
-		if elem == v {
-			return index, true
+
+func in(str string,letter rune)(bool,int){
+	for index,s:=range str{
+		if s==letter{
+			return true,index
 		}
 	}
-	return 0, false
+	return false,0
 }
 
 func main() {
