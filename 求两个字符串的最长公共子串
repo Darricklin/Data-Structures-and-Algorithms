@@ -12,33 +12,28 @@ import (
 
 // abcdef
 // ababcecdef
-func getLongestSubStr(str1, str2 string) (string, int) {
+func GetLongestSameStr(str1, str2 string) string {
 	data := make(map[string]int)
-	str1Left := 0
-	str1Right := 1
-	str1Len := len(str1)
-	for str1Right < str1Len {
-		for str1Right <= str1Len {
-			subStr := str1[str1Left:str1Right]
-			if strings.Contains(str2, subStr) {
-				str1Right++
-				data[subStr] = len(subStr)
-			} else {
-				break
-			}
+	left := 0
+	right := 1
+	for right < len(str1) {
+		if strings.Contains(str2, string(str1[left:right])) {
+			data[string(str1[left:right])] = len(str1[left:right])
+			right++
+		} else {
+			left++
 		}
-		str1Left++
-		str1Right = str1Left + 1
 	}
-	max := -1
-	maxStr := ""
+	max := 0
+	res := ""
 	for k, v := range data {
 		if v > max {
 			max = v
-			maxStr = k
+			res = k
 		}
 	}
-	return maxStr, max
+	fmt.Println(data)
+	return res
 }
 
 func main() {
