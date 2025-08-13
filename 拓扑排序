@@ -1,0 +1,76 @@
+package main
+
+import (
+	"container/list"
+	"fmt"
+)
+
+func topoSort(edges [][]int)[]int{
+	// 收集所有实际存在的节点
+	nodes := make(map[int]bool)
+	// 邻接表：使用map存储，键为节点，值为其邻居列表
+	adj := make(map[int][]int)
+	// 入度：使用map存储，键为节点，值为入度数量
+	inDegree := make(map[int]int)
+
+	// 初始化数据结构
+	for _, edge := range edges {
+		from, to := edge[0], edge[1]
+		// 标记节点存在
+		nodes[from] = true
+		nodes[to] = true
+		// 构建邻接表
+		adj[from] = append(adj[from], to)
+		// 统计入度
+		inDegree[to]++
+		// 确保入度map中存在所有节点（包括入度为0的）
+		if _, exists := inDegree[from]; !exists {
+			inDegree[from] = 0
+		}
+	}
+	fmt.Printf("adj is %+v\n",adj)
+	fmt.Printf("inDegree is %+v\n",inDegree)
+	queue:=list.New()
+	for node:=range nodes{
+		if inDegree[node]==0{
+			queue.PushBack(node)
+		}
+	}
+	result:=make([]int,0,len(nodes))
+	for queue.Len()>0{
+		node:=queue.Remove(queue.Front()).(int)
+		result=append(result,node)
+		for _,neighbors:=range adj[node]{
+			inDegree[neighbors]--
+			if inDegree[neighbors]==0{
+				queue.PushBack(neighbors)
+			}
+		}
+	}
+	if len(result)!=len(nodes){
+		return []int{}
+	}
+	return result
+}
+
+func main(){
+		// 示例1：无环图
+		// numNodes1 := 5
+		edges1 := [][]int{
+			{0, 1},
+			{0, 2},
+			{1, 3},
+			{2, 5},
+		}
+		fmt.Println("示例1拓扑排序结果:", topoSort( edges1)) // 可能的结果: [0,1,2,3] 或 [0,2,1,3]
+	
+		// 示例2：有环图
+		// numNodes2 := 3
+		edges2 := [][]int{
+			{0, 1},
+			{1, 2},
+			{2, 0}, // 形成环 0->1->2->0
+		}
+		fmt.Println("示例2拓扑排序结果:", topoSort( edges2)) // 结果: []
+	
+}
